@@ -20,7 +20,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ThreadsExampleTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting("Android", Modifier.padding(innerPadding))
+                    //Greeting("Android", Modifier.padding(innerPadding))
+                    FibonacciDemoNoBgThrd()
                 }
             }
         }
