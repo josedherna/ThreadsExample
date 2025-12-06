@@ -88,12 +88,33 @@ fun TimerScreen(
         )
         if (timerViewModel.isRunning) {
             Button(
+                onClick = timerViewModel::pauseTimer,
+                modifier = modifier.padding(top = 50.dp)
+            ) {
+                Text("Pause")
+            }
+
+            Button(
                 onClick = timerViewModel::cancelTimer,
                 modifier = modifier.padding(50.dp)
             ) {
                 Text("Cancel")
             }
-        } else {
+        } else if (timerViewModel.isPaused) {
+            Button(
+                onClick = timerViewModel::startTimer,
+                modifier = modifier.padding(top = 50.dp)
+            ) {
+                Text("Resume")
+            }
+            Button(
+                onClick = timerViewModel::cancelTimer,
+                modifier = modifier.padding(top = 50.dp)
+            ) {
+                Text("Cancel")
+            }
+        }
+        else {
             Button(
                 enabled = timerViewModel.selectedHour +
                         timerViewModel.selectedMinute +

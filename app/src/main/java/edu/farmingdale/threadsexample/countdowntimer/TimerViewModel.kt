@@ -34,6 +34,9 @@ class TimerViewModel : ViewModel() {
     var isRunning by mutableStateOf(false)
         private set
 
+    var isPaused by mutableStateOf(false)
+        private set
+
     fun selectTime(hour: Int, min: Int, sec: Int) {
         selectedHour = hour
         selectedMinute = min
@@ -41,13 +44,14 @@ class TimerViewModel : ViewModel() {
     }
 
     fun startTimer() {
-        // Convert hours, minutes, and seconds to milliseconds
-        totalMillis = (selectedHour * 60 * 60 + selectedMinute * 60 + selectedSecond) * 1000L
-
-        // Start coroutine that makes the timer count down
-        if (totalMillis > 0) {
-            isRunning = true
+        if (!isPaused && !isRunning) {
+            totalMillis = (selectedHour * 60 * 60 + selectedMinute * 60 + selectedSecond) * 1000L
             remainingMillis = totalMillis
+        }
+
+        if (remainingMillis > 0) {
+            isRunning = true
+            isPaused = false
 
             timerJob = viewModelScope.launch {
                 while (remainingMillis > 0) {
@@ -56,14 +60,25 @@ class TimerViewModel : ViewModel() {
                 }
 
                 isRunning = false
+                isPaused = false
+                remainingMillis = 0
             }
         }
     }
 
-    fun cancelTimer() {
+    fun pauseTimer() {
         if (isRunning) {
             timerJob?.cancel()
             isRunning = false
+            isPaused = true
+        }
+    }
+
+    fun cancelTimer() {
+        if (isRunning || isPaused) {
+            timerJob?.cancel()
+            isRunning = false
+            isPaused = false
             remainingMillis = 0
         }
     }
