@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,11 +43,23 @@ fun TimerScreen(
     modifier: Modifier = Modifier,
     timerViewModel: TimerViewModel = viewModel()
 ) {
+    val progress: Float = if (timerViewModel.totalMillis > 0 && timerViewModel.isRunning) {
+        timerViewModel.remainingMillis.toFloat() / timerViewModel.totalMillis.toFloat()
+    } else {
+        1.0f
+    }
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(durationMillis = 1000),
+        label = "TimerProgressAnimation"
+    )
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = modifier
                 .padding(20.dp)
-                .size(240.dp),
+                .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
             if (timerViewModel.isRunning) {
@@ -55,11 +70,21 @@ fun TimerScreen(
                 fontSize = 60.sp,
             )
         }
+        if (timerViewModel.isRunning) {
+            CircularProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier.size(240.dp),
+                strokeWidth = 10.dp,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(modifier = Modifier.height(50.dp))
+        }
+
         TimePicker(
             hour = timerViewModel.selectedHour,
             min = timerViewModel.selectedMinute,
             sec = timerViewModel.selectedSecond,
-            onTimePick = timerViewModel::selectTime
+            onTimePick = timerViewModel::selectTime,
         )
         if (timerViewModel.isRunning) {
             Button(
