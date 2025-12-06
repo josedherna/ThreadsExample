@@ -9,6 +9,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 
 class TimerViewModel : ViewModel() {
@@ -37,6 +40,9 @@ class TimerViewModel : ViewModel() {
     var isPaused by mutableStateOf(false)
         private set
 
+    private val _timerFinishedEvent = MutableSharedFlow<Unit>()
+    val timerFinishedEvent: SharedFlow<Unit> = _timerFinishedEvent.asSharedFlow()
+
     fun selectTime(hour: Int, min: Int, sec: Int) {
         selectedHour = hour
         selectedMinute = min
@@ -62,6 +68,8 @@ class TimerViewModel : ViewModel() {
                 isRunning = false
                 isPaused = false
                 remainingMillis = 0
+
+                _timerFinishedEvent.emit(Unit)
             }
         }
     }

@@ -1,8 +1,10 @@
 package edu.farmingdale.threadsexample.countdowntimer
 
+import android.content.Context
+import android.media.RingtoneManager
+import android.net.Uri
 import android.util.Log
 import android.widget.NumberPicker
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
@@ -21,14 +23,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -37,6 +37,18 @@ import java.text.DecimalFormat
 import java.util.Locale
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+fun playAlarmSound(context: Context) {
+    try {
+        val notificationUri: Uri? = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+
+        if (notificationUri != null) {
+            val ringtone = RingtoneManager.getRingtone(context, notificationUri)
+            ringtone.play()
+        }
+    } catch (e: Exception) {
+        Log.e("TimerAudio", "Error playing notification sound", e)
+    }
+}
 
 @Composable
 fun TimerScreen(
@@ -54,6 +66,14 @@ fun TimerScreen(
         animationSpec = tween(durationMillis = 1000),
         label = "TimerProgressAnimation"
     )
+
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = Unit) {
+        timerViewModel.timerFinishedEvent.collect {
+            playAlarmSound(context)
+        }
+    }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
